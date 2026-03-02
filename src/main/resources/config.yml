@@ -1,0 +1,56 @@
+#
+# 베인 마이닝 시스템 설정
+vein-mining:
+  # 한 번에 파괴 가능한 원목/광석 개수
+  max-breaking-blocks: 64
+  # 한 번에 파괴 가능한 최대 나뭇잎 개수
+  max-breaking-leave-blocks: 300
+  # 틱 마다 파괴될 블록 수
+  block-breaking-per-tick: 2
+  # 블록 파괴 딜레이
+  block-breaking-delay-ticks: 1
+#
+# 경험치 시스템 설정
+exp:
+  # 로그인 경험치 보상
+  sign-reward-amount: 300
+  time-reward:
+    # 최대 받을 수 있는 플레이 경험치 보상 횟수
+    limit: 6
+    # 플레이 경험치 보상 Interval
+    interval-minutes: 10
+    # 기본 플레이 경험치 보상
+    normal-amount: 100
+    # 획득량 감소 플레이 경험치 보상
+    reduced-amount: 20
+  drop:
+    trade:
+      # 떠돌이 상인 드롭 경험치
+      wandering-trader: '1:4'
+#
+# 텔레포트 시스템 설정
+teleporting:
+  # 텔레포트 딜레이 (초 단위)
+  delay: 3
+  compass-teleport:
+    # 나침반 텔레포트 경험치 비용
+    exp-cost: 100
+#
+# 스포너 시스템 설정
+spawner:
+  mob:
+    # 스포너에서 스폰된 몹 체력 증가 배율
+    health-multiplier: '1.2:1.5'
+    # 스포너에서 생성되는 몹 장비 착용 확률
+    equipment-chance: 30.0
+#
+# 수확 시스템 설정
+harvest:
+  grow-buff:
+    # 농작물 버프 지속 시간 (초 단위)
+    duration: 60
+    # 농작물 버프 지속 시 농작물 자라는 확률 (.5초 마다 확률 발생)
+    grow-chance: 5.0
+  hay-block:
+    # 건초 더미 파괴 시 드롭하는 밀 개수
+    wheat-drop-count: '1:2'

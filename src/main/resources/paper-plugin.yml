@@ -1,0 +1,8 @@
+name: bserver-core
+version: '1.0-SNAPSHOT'
+main: space.byeoruk.core.Main
+api-version: '1.21'
+prefix: BServer Core
+authors: [ qufnr ]
+description: 벼룩 서버 코어
+website: https://byeoruk.space/
