@@ -8,7 +8,7 @@ import space.byeoruk.core.system.spawner.configs.SpawnerConfigManager
 import space.byeoruk.core.system.teleporting.configs.TeleportingConfigManager
 
 class MainConfigManager(private val plugin: JavaPlugin) {
-    val messagePrefix: String = "<color:grey><i>[*] "
+    val messagePrefix: String = "<color:grey><i>[*]"
 
     lateinit var miningConfig: MiningConfigManager
         private set
@@ -69,7 +69,11 @@ class MainConfigManager(private val plugin: JavaPlugin) {
         harvestConfig = HarvestConfigManager(
             growBuffDuration = config.getInt("harvest.grow-buff.duration", 60),
             forceGrowChance = config.getDouble("harvest.grow-buff.force-grow-chance", 5.0),
-            hayBlockDropWheatCountRange = config.getString("harvest.hay-block.wheat-drop-count", "1:2") ?: "1:2"
+            hayBlockDropWheatCountRange = config.getString("harvest.hay-block.wheat-drop-count", "3:5") ?: "3:5",
+            pumpkinStemDropSeedCountRange = config.getString("harvest.pumpkin.stem-seed-drop-count", "0:1") ?: "0:1",
+            melonStemDropSeedCountRange = config.getString("harvest.melon.stem-seed-drop-count", "0:1") ?: "0:1",
+            attachedMelonStemDropSeedCountRange = config.getString("harvest.pumpkin.attached-stem-seed-drop-count", "1:3") ?: "1:3",
+            attachedPumpkinStemDropSeedCountRange = config.getString("harvest.melon.attached-stem-seed-drop-count", "1:3") ?: "1:3"
         )
     }
 }
