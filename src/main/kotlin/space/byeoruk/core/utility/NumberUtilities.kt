@@ -1,9 +1,7 @@
 package space.byeoruk.core.utility
 
-import java.time.Duration
 import java.util.concurrent.ThreadLocalRandom
 import kotlin.random.Random
-import kotlin.time.Duration.Companion.seconds
 
 object NumberUtilities {
     /**
@@ -26,6 +24,36 @@ object NumberUtilities {
      */
     fun getRandomInt(min: Int, max: Int): Int =
         Random.nextInt(min, max + 1)
+
+    /**
+     * 범위 값을 INT 배열로 변환
+     *
+     * @param value 범위 값 문자열 (예: `"1:4"`)
+     * @param fallbackValue 첫 번째 매개변수 파싱 실패 시 대처될 값 (기본값: 1)
+     * @return 범위 값 숫자 배열 (예: `[1, 4]`)
+     */
+    fun getRangeInt(value: String, fallbackValue: Int = 1): List<Int> {
+        if(value.contains(":"))
+             return value.split(":").map { it.toInt() }
+
+        val n = value.toIntOrNull() ?: fallbackValue
+        return listOf(n, n)
+    }
+
+    /**
+     * 범위 값을 Double 배열로 변환
+     *
+     * @param value 범위 값 문자열 (예: `"1.1:1.5"`)
+     * @param fallbackValue 첫 번째 매개변수 파싱 실패 시 대처될 값 (기본값: 1.0)
+     * @return 범위 값 Double 배열 (예: `[1.1, 1.5]`)
+     */
+    fun getRangeDouble(value: String, fallbackValue: Double = 1.0): List<Double> {
+        if(value.contains(":"))
+            return value.split(":").map { it.toDouble() }
+
+        val n = value.toDoubleOrNull() ?: fallbackValue
+        return listOf(n, n)
+    }
 
     /**
      * 초 단위 숫자를 분:초 형태로 포멧
