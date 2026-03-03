@@ -268,7 +268,7 @@ class HarvestListener(
 
         //  수박 조각 분해 제작 막기
         if(recipe.result.type == Material.MELON_SEEDS) {
-            val hasMelon = event.inventory.matrix.any { it?.type == Material.MELON }
+            val hasMelon = event.inventory.matrix.any { it?.type == Material.MELON_SLICE }
             if(hasMelon)
                 event.inventory.result = null
         }
