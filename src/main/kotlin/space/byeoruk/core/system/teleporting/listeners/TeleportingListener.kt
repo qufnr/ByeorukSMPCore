@@ -141,7 +141,7 @@ class TeleportingListener(
             safeLocation.world?.let { world ->
                 val center = safeLocation.clone().add(0.0, 1.0, 0.0)
                 world.spawnParticle(Particle.END_ROD, center, 80, 0.3, 1.0, 0.3, 0.1)
-                world.spawnParticle(Particle.DRAGON_BREATH, safeLocation.clone().add(0.0, 0.5, 0.0), 50, 0.5, 0.2, 0.5, 0.05)
+                world.spawnParticle(Particle.DRAGON_BREATH, safeLocation.clone().add(0.0, 0.5, 0.0), 50, 0.5, 0.2, 0.5, 0.1, 1.0f)
             }
 
         }, 60L)
