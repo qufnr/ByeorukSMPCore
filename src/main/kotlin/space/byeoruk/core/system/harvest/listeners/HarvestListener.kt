@@ -33,7 +33,9 @@ class HarvestListener(
         Material.BEETROOTS,
         Material.GLOW_BERRIES,
         Material.PUMPKIN_STEM,
+        Material.ATTACHED_PUMPKIN_STEM,
         Material.MELON_STEM,
+        Material.ATTACHED_MELON_STEM,
         Material.SWEET_BERRIES
     )
 
