@@ -164,10 +164,13 @@ class HarvestListener(
             if(event.player.gameMode != GameMode.CREATIVE) {
                 val seedDropCounts = NumberUtilities.getRangeInt(configManager.harvestConfig.pumpkinStemDropSeedCountRange)
                 event.isDropItems = false
-                block.world.dropItemNaturally(
-                    block.location.clone().add(.5, .5, .5),
-                    ItemStack(Material.PUMPKIN_SEEDS, NumberUtilities.getRandomInt(seedDropCounts[0], seedDropCounts[1]))
-                )
+
+                val dropCount = NumberUtilities.getRandomInt(seedDropCounts[0], seedDropCounts[1])
+                if(dropCount > 0)
+                    block.world.dropItemNaturally(
+                        block.location.clone().add(.5, .5, .5),
+                        ItemStack(Material.PUMPKIN_SEEDS, dropCount)
+                    )
             }
         }
 
@@ -176,10 +179,13 @@ class HarvestListener(
             if(event.player.gameMode != GameMode.CREATIVE) {
                 val seedDropCounts = NumberUtilities.getRangeInt(configManager.harvestConfig.melonStemDropSeedCountRange)
                 event.isDropItems = false
-                block.world.dropItemNaturally(
-                    block.location.clone().add(.5, .5, .5),
-                    ItemStack(Material.MELON_SEEDS, NumberUtilities.getRandomInt(seedDropCounts[0], seedDropCounts[1]))
-                )
+
+                val dropCount = NumberUtilities.getRandomInt(seedDropCounts[0], seedDropCounts[1])
+                if(dropCount > 0)
+                    block.world.dropItemNaturally(
+                        block.location.clone().add(.5, .5, .5),
+                        ItemStack(Material.MELON_SEEDS, NumberUtilities.getRandomInt(seedDropCounts[0], seedDropCounts[1]))
+                    )
             }
         }
 
@@ -193,7 +199,12 @@ class HarvestListener(
                     //  드롭할 씨앗
                     val seedType = if(adjacent.type == Material.ATTACHED_PUMPKIN_STEM) Material.PUMPKIN_SEEDS else Material.MELON_SEEDS
                     //  씨앗 드롭 개수
-                    val dropCounts = NumberUtilities.getRangeInt(if(seedType == Material.PUMPKIN_SEEDS) configManager.harvestConfig.attachedPumpkinStemDropSeedCountRange else configManager.harvestConfig.melonStemDropSeedCountRange)
+                    val dropCounts = NumberUtilities.getRangeInt(
+                        if(seedType == Material.PUMPKIN_SEEDS)
+                                configManager.harvestConfig.attachedPumpkinStemDropSeedCountRange
+                            else
+                                configManager.harvestConfig.attachedMelonStemDropSeedCountRange
+                    )
 
                     //  바닐라 드롭 차단을 위해 블록을 공기로 설정
                     adjacent.type = Material.AIR
