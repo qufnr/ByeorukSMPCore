@@ -43,7 +43,13 @@ class HarvestManager(private val configManager: MainConfigManager) {
         display.backgroundColor = Color.fromARGB(0, 0, 0, 0)
         display.isShadowed = true
         display.brightness = Display.Brightness(15, 15)
-        display.text(mm.deserialize("<color:#FFFFFF>성장 중... <color:#70E346>${NumberUtilities.formatSeconds(duration)}"))
+//        display.transformation = Transformation(
+//            Vector3f(0f, 0f, 0f),   //  위치 이동
+//            AxisAngle4f(0f ,0f, 0f, 1f),    //  왼쪽 회전
+//            Vector3f(0f, 0f, 0f),   //  크기 스케일
+//            AxisAngle4f(0f ,0f, 0f, 1f) //  오른쪽 회전
+//        )
+        display.text(mm.deserialize("<color:#70E346>${NumberUtilities.formatSeconds(duration)}"))
 
         //  현재 위치 성장 효과 생성
         activeGrowBuffs[location] = GrowBuff(location, endTime, display)
@@ -93,33 +99,14 @@ class HarvestManager(private val configManager: MainConfigManager) {
 
                     //  남은 시간 업데이트
                     val remainingDuration = ((growBuff.endTime - now) / 1000).toInt()
-                    growBuff.display.text(mm.deserialize("<color:#FFFFFF>성장 중... <color:#70E346>${NumberUtilities.formatSeconds(remainingDuration)}"))
+                    growBuff.display.text(mm.deserialize("<color:#70E346>${NumberUtilities.formatSeconds(remainingDuration)}"))
 
                     //  작물 자라는 속도 향상
                     val block = location.block
                     val blockData = block.blockData
                     if(blockData is Ageable) {
-                        //  작물이 다 자라지 않았다면
-                        if(blockData.age < blockData.maximumAge) {
-                            //  강제 성장 확률에 들었을 경우 작물 성장 처리
-                            if(NumberUtilities.isInChance(configManager.harvestConfig.forceGrowChance)) {
-                                blockData.age += 1
-                                block.blockData = blockData
-
-                                //  성장 시 소리/파티클 재생
-                                location.world.playSound(location, Sound.BLOCK_CROP_BREAK, 1.0f, 1.5f)
-                                location.world.spawnParticle(Particle.COMPOSTER, location.clone().add(0.5, 0.5, 0.5), 10, 0.3, 0.3, 0.3, 0.1)
-
-                                //  최대 성장이면 효과 제거
-                                if(blockData.age == blockData.maximumAge) {
-                                    growBuff.display.remove()
-                                    iterator.remove()
-                                    continue
-                                }
-                            }
-                        }
                         //  호박, 수박 줄기
-                        else if(block.type == Material.PUMPKIN_STEM || block.type == Material.MELON_STEM) {
+                        if(block.type == Material.PUMPKIN_STEM || block.type == Material.MELON_STEM) {
                             if(NumberUtilities.isInChance(configManager.harvestConfig.forceGrowChance)) {
                                 val faces = listOf(BlockFace.NORTH, BlockFace.SOUTH, BlockFace.EAST, BlockFace.WEST)
                                 val spawnFace = faces.random()
@@ -149,6 +136,26 @@ class HarvestManager(private val configManager: MainConfigManager) {
                                         iterator.remove()
                                         continue
                                     }
+                                }
+                            }
+                        }
+
+                        //  작물이 다 자라지 않았다면
+                        else if(blockData.age < blockData.maximumAge) {
+                            //  강제 성장 확률에 들었을 경우 작물 성장 처리
+                            if(NumberUtilities.isInChance(configManager.harvestConfig.forceGrowChance)) {
+                                blockData.age += 1
+                                block.blockData = blockData
+
+                                //  성장 시 소리/파티클 재생
+                                location.world.playSound(location, Sound.BLOCK_CROP_BREAK, 1.0f, 1.5f)
+                                location.world.spawnParticle(Particle.COMPOSTER, location.clone().add(0.5, 0.5, 0.5), 10, 0.3, 0.3, 0.3, 0.1)
+
+                                //  최대 성장이면 효과 제거
+                                if(blockData.age == blockData.maximumAge) {
+                                    growBuff.display.remove()
+                                    iterator.remove()
+                                    continue
                                 }
                             }
                         }

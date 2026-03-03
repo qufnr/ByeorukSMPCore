@@ -13,11 +13,13 @@ import org.bukkit.event.block.Action
 import org.bukkit.event.block.BlockBreakEvent
 import org.bukkit.event.block.BlockDispenseEvent
 import org.bukkit.event.block.BlockGrowEvent
+import org.bukkit.event.inventory.PrepareItemCraftEvent
 import org.bukkit.event.player.PlayerInteractEvent
 import org.bukkit.inventory.ItemStack
 import space.byeoruk.core.Main
 import space.byeoruk.core.global.configs.MainConfigManager
 import space.byeoruk.core.system.harvest.managers.HarvestManager
+import space.byeoruk.core.utility.BlockUtilities
 import space.byeoruk.core.utility.NumberUtilities
 import kotlin.random.Random
 
@@ -79,10 +81,7 @@ class HarvestListener(
         val player = event.player
 
         if(item.type == Material.BONE_MEAL && block.type in crops) {
-            val ageable = block.blockData as Ageable
-
-            //  이미 다 자랐거나 성장 효과가 진행 중인 농작물이면 무시
-            if(ageable.age == ageable.maximumAge || harvestManager.isGrowBuffed(block.location)) {
+            if(BlockUtilities.isMaxAge(block) || harvestManager.isGrowBuffed(block.location)) {
                 event.isCancelled = true
                 return
             }
@@ -118,10 +117,8 @@ class HarvestListener(
 
         //  타겟 블록이 농작물인지 확인
         if(targetBlock.type in crops) {
-            val ageable = targetBlock.blockData as? Ageable ?: return
-
             //  이미 다 자란 작물이거나 성장 효과가 진행 중이면 바닐라처럼 뼛가루 낭비 방지
-            if(ageable.age == ageable.maximumAge || harvestManager.isGrowBuffed(targetBlock.location)) {
+            if(BlockUtilities.isMaxAge(targetBlock) || harvestManager.isGrowBuffed(targetBlock.location)) {
                 event.isCancelled = true
                 return
             }
@@ -162,17 +159,27 @@ class HarvestListener(
         if(harvestManager.isGrowBuffed(block.location))
             harvestManager.removeGrowBuff(block.location)
 
-        //  호박/수박 줄기일 경우 드롭 없음
+        //  호박 줄기 파괴 시 씨앗 드롭 설정
         if(block.type == Material.PUMPKIN_STEM || block.type == Material.ATTACHED_PUMPKIN_STEM) {
             if(event.player.gameMode != GameMode.CREATIVE) {
+                val seedDropCounts = NumberUtilities.getRangeInt(configManager.harvestConfig.pumpkinStemDropSeedCountRange)
                 event.isDropItems = false
-                block.world.dropItemNaturally(block.location.clone().add(.5, .5, .5), ItemStack(Material.PUMPKIN_SEEDS, 1))
+                block.world.dropItemNaturally(
+                    block.location.clone().add(.5, .5, .5),
+                    ItemStack(Material.PUMPKIN_SEEDS, NumberUtilities.getRandomInt(seedDropCounts[0], seedDropCounts[1]))
+                )
             }
         }
+
+        //  수박 줄기 파괴 시 씨앗 드롭 설정
         if(block.type == Material.MELON_STEM || block.type == Material.ATTACHED_MELON_STEM) {
             if(event.player.gameMode != GameMode.CREATIVE) {
+                val seedDropCounts = NumberUtilities.getRangeInt(configManager.harvestConfig.melonStemDropSeedCountRange)
                 event.isDropItems = false
-                block.world.dropItemNaturally(block.location.clone().add(.5, .5, .5), ItemStack(Material.MELON_SEEDS, 1))
+                block.world.dropItemNaturally(
+                    block.location.clone().add(.5, .5, .5),
+                    ItemStack(Material.MELON_SEEDS, NumberUtilities.getRandomInt(seedDropCounts[0], seedDropCounts[1]))
+                )
             }
         }
 
@@ -183,13 +190,19 @@ class HarvestListener(
                 val adjacent = block.getRelative(face)
                 //  연결된 줄기 확인
                 if(adjacent.type == Material.ATTACHED_PUMPKIN_STEM || adjacent.type == Material.ATTACHED_MELON_STEM) {
+                    //  드롭할 씨앗
                     val seedType = if(adjacent.type == Material.ATTACHED_PUMPKIN_STEM) Material.PUMPKIN_SEEDS else Material.MELON_SEEDS
+                    //  씨앗 드롭 개수
+                    val dropCounts = NumberUtilities.getRangeInt(if(seedType == Material.PUMPKIN_SEEDS) configManager.harvestConfig.attachedPumpkinStemDropSeedCountRange else configManager.harvestConfig.melonStemDropSeedCountRange)
 
                     //  바닐라 드롭 차단을 위해 블록을 공기로 설정
                     adjacent.type = Material.AIR
 
                     if(event.player.gameMode != GameMode.CREATIVE)
-                        adjacent.world.dropItemNaturally(adjacent.location.clone().add(.5, .5, .5), ItemStack(seedType, 1))
+                        adjacent.world.dropItemNaturally(
+                            adjacent.location.clone().add(.5, .5, .5),
+                            ItemStack(seedType, NumberUtilities.getRandomInt(dropCounts[0], dropCounts[1]))
+                        )
 
                     //  줄기에 남아있던 효과 제거
                     if(harvestManager.isGrowBuffed(adjacent.location))
@@ -212,7 +225,7 @@ class HarvestListener(
             if(event.player.gameMode != GameMode.CREATIVE) {
                 event.isDropItems = false
 
-                val wheatDropCounts = configManager.harvestConfig.hayBlockDropWheatCountRange.split(":").map { it.toInt() }
+                val wheatDropCounts = NumberUtilities.getRangeInt(configManager.harvestConfig.hayBlockDropWheatCountRange)
                 //  TODO :: 행운 효과는?
                 val dropAmount = NumberUtilities.getRandomInt(wheatDropCounts[0], wheatDropCounts[1])
                 block.world.dropItemNaturally(
@@ -220,6 +233,33 @@ class HarvestListener(
                     ItemStack(Material.WHEAT, dropAmount)
                 )
             }
+        }
+    }
+
+    @EventHandler
+    fun onPrepareItemCraft(event: PrepareItemCraftEvent) {
+        val recipe = event.recipe ?: return
+
+        //  건초 더미 분해 제작 막기
+        if(recipe.result.type == Material.WHEAT) {
+            //  조합대에 건초 더미가 하나라도 있는지 확인
+            val hasHayBlock = event.inventory.matrix.any { it?.type == Material.HAY_BLOCK }
+            if(hasHayBlock)
+                event.inventory.result = null
+        }
+
+        //  호박 분해 제작 막기
+        if(recipe.result.type == Material.PUMPKIN_SEEDS) {
+            val hasPumpkin = event.inventory.matrix.any { it?.type == Material.PUMPKIN }
+            if(hasPumpkin)
+                event.inventory.result = null
+        }
+
+        //  수박 조각 분해 제작 막기
+        if(recipe.result.type == Material.MELON_SEEDS) {
+            val hasMelon = event.inventory.matrix.any { it?.type == Material.MELON }
+            if(hasMelon)
+                event.inventory.result = null
         }
     }
 }
