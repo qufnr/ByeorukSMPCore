@@ -17,9 +17,9 @@ import space.byeoruk.core.system.teleporting.listeners.CompassTeleportListener
 import space.byeoruk.core.system.teleporting.listeners.TeleportingListener
 import space.byeoruk.core.system.teleporting.managers.CompassTeleportManager
 import space.byeoruk.core.system.teleporting.managers.TeleportingPlayerDataManager
-import space.byeoruk.core.system.veinMining.listeners.VeinMiningListener
-import space.byeoruk.core.system.veinMining.managers.BlockDataManager
-import space.byeoruk.core.system.veinMining.managers.VeinMiningManager
+import space.byeoruk.core.system.mining.listeners.VeinMiningListener
+import space.byeoruk.core.system.mining.managers.BlockDataManager
+import space.byeoruk.core.system.mining.managers.VeinMiningManager
 
 class Main: JavaPlugin() {
     private lateinit var configManager: MainConfigManager

@@ -1,4 +1,4 @@
-package space.byeoruk.core.system.veinMining.managers
+package space.byeoruk.core.system.mining.managers
 
 import org.bukkit.Particle
 import org.bukkit.SoundCategory

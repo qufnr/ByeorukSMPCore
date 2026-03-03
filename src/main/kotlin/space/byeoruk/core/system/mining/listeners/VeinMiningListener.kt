@@ -1,12 +1,12 @@
-package space.byeoruk.core.system.veinMining.listeners
+package space.byeoruk.core.system.mining.listeners
 
 import org.bukkit.event.EventHandler
 import org.bukkit.event.EventPriority
 import org.bukkit.event.Listener
 import org.bukkit.event.block.BlockBreakEvent
 import org.bukkit.event.block.BlockPlaceEvent
-import space.byeoruk.core.system.veinMining.managers.BlockDataManager
-import space.byeoruk.core.system.veinMining.managers.VeinMiningManager
+import space.byeoruk.core.system.mining.managers.BlockDataManager
+import space.byeoruk.core.system.mining.managers.VeinMiningManager
 import space.byeoruk.core.utility.BlockUtilities
 import space.byeoruk.core.utility.ItemUtilities
 
