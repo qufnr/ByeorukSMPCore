@@ -26,8 +26,8 @@ class VeinMiningManager(
     fun executeVeinMining(player: Player, startBlock: Block, isLog: Boolean, isOre: Boolean) {
         activePlayers.add(player.uniqueId)
 
-        val connectedBlocks = getConnectedBlocks(startBlock, configManager.maxBreakingBlocks)
-        val connectedLeaveBlocks = if(isLog) getConnectedLeaveBlocks(connectedBlocks, configManager.maxBreakingLeaveBlocks) else emptySet()
+        val connectedBlocks = getConnectedBlocks(startBlock, configManager.miningConfig.maxBreakingBlocks)
+        val connectedLeaveBlocks = if(isLog) getConnectedLeaveBlocks(connectedBlocks, configManager.miningConfig.maxBreakingLeaveBlocks) else emptySet()
 
         val breakBlockQueue = LinkedList<Block>()
         breakBlockQueue.addAll(connectedBlocks.filter { it != startBlock })
@@ -35,7 +35,7 @@ class VeinMiningManager(
 
         object : BukkitRunnable() {
             override fun run() {
-                for(i in 0 until configManager.blockBreakingPerTick) {
+                for(i in 0 until configManager.miningConfig.blockBreakingPerTick) {
                     //  대기열이 비었거나, 플레이어가 없으면 작업 종료
                     if(breakBlockQueue.isEmpty() || !player.isOnline) {
                         activePlayers.remove(player.uniqueId)
@@ -84,7 +84,7 @@ class VeinMiningManager(
                     }
                 }
             }
-        }.runTaskTimer(plugin, configManager.blockBreakingDelayTicks, configManager.blockBreakingDelayTicks)
+        }.runTaskTimer(plugin, configManager.miningConfig.blockBreakingDelayTicks, configManager.miningConfig.blockBreakingDelayTicks)
     }
 
     /**

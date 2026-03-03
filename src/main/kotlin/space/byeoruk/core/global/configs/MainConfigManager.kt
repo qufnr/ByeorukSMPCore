@@ -3,19 +3,14 @@ package space.byeoruk.core.global.configs
 import org.bukkit.plugin.java.JavaPlugin
 import space.byeoruk.core.system.experience.configs.ExpConfigManager
 import space.byeoruk.core.system.harvest.configs.HarvestConfigManager
+import space.byeoruk.core.system.mining.config.MiningConfigManager
 import space.byeoruk.core.system.spawner.configs.SpawnerConfigManager
 import space.byeoruk.core.system.teleporting.configs.TeleportingConfigManager
 
 class MainConfigManager(private val plugin: JavaPlugin) {
     val messagePrefix: String = "<color:grey><i>[*] "
 
-    var maxBreakingBlocks: Int = 64         //  원목/광석 파괴 가능한 개수
-        private set
-    var maxBreakingLeaveBlocks: Int = 300   //  나뭇잎 블록 파괴 가능한 개수
-        private set
-    var blockBreakingPerTick: Int = 3       //  블록 파괴 개수
-        private set
-    var blockBreakingDelayTicks: Long = 1L  //  블록 파괴 딜레이
+    lateinit var miningConfig: MiningConfigManager
         private set
 
     //  Experience Configuration
@@ -40,11 +35,13 @@ class MainConfigManager(private val plugin: JavaPlugin) {
 
         val config = plugin.config
 
-        //  Vein Mining
-        maxBreakingBlocks = config.getInt("vein-mining.max-breaking-blocks", 64)
-        maxBreakingLeaveBlocks = config.getInt("vein-mining.max-breaking-leave-blocks", 300)
-        blockBreakingPerTick = config.getInt("vein-mining.block-breaking-per-tick", 2)
-        blockBreakingDelayTicks = config.getLong("vein-mining.block-breaking-delay-ticks", 1L)
+        //  Mining
+        miningConfig = MiningConfigManager(
+            maxBreakingBlocks = config.getInt("vein-mining.max-breaking-blocks", 64),
+            maxBreakingLeaveBlocks = config.getInt("vein-mining.max-breaking-leave-blocks", 300),
+            blockBreakingPerTick = config.getInt("vein-mining.block-breaking-per-tick", 2),
+            blockBreakingDelayTicks = config.getLong("vein-mining.block-breaking-delay-ticks", 1L)
+        )
 
         //  EXP / Time Rewards
         experienceConfig = ExpConfigManager(
