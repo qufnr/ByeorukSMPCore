@@ -3,13 +3,10 @@ package space.byeoruk.core.system.experience.commands
 import io.papermc.paper.command.brigadier.BasicCommand
 import io.papermc.paper.command.brigadier.CommandSourceStack
 import net.kyori.adventure.text.minimessage.MiniMessage
-import org.bukkit.command.Command
-import org.bukkit.command.CommandExecutor
-import org.bukkit.command.CommandSender
 import org.bukkit.entity.Player
 import space.byeoruk.core.global.configs.MainConfigManager
 import space.byeoruk.core.system.experience.managers.ExpPlayerDataManager
-import space.byeoruk.core.utility.PlayerUtilities
+import space.byeoruk.core.utility.PlayerUtilities.addTotalExp
 
 class RewardCommand(
     private val configManager: MainConfigManager,
@@ -35,7 +32,7 @@ class RewardCommand(
 
         val reward = configManager.experienceConfig.signReward
 
-        PlayerUtilities.addTotalExperience(sender, reward)
+        sender.addTotalExp(reward)
         expPlayerDataManager.setSignedToday(sender)
 
         sender.sendMessage(mm.deserialize("${configManager.messagePrefix} 출석 보상으로 경험치를 받았어요"))

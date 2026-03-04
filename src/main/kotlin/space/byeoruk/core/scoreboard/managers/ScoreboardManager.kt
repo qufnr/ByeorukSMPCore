@@ -9,7 +9,7 @@ import org.bukkit.scoreboard.Scoreboard
 import space.byeoruk.core.global.configs.MainConfigManager
 import space.byeoruk.core.system.experience.managers.ExpPlayerDataManager
 import space.byeoruk.core.utility.NumberUtilities
-import space.byeoruk.core.utility.PlayerUtilities
+import space.byeoruk.core.utility.PlayerUtilities.getTotalExp
 
 class ScoreboardManager(
     val configManager: MainConfigManager,
@@ -66,7 +66,7 @@ class ScoreboardManager(
                 else
                     configManager.experienceConfig.playTimeRewardReducedAmount
 
-            updateTeam(board, "exp_value", mm.deserialize("<color:#AAD34A>${PlayerUtilities.getTotalExperience(player)} (${player.level})"))
+            updateTeam(board, "exp_value", mm.deserialize("<color:#AAD34A>${player.getTotalExp()} (${player.level})"))
             updateTeam(board, "exp_play_time", mm.deserialize("<color:#AAD34A>${NumberUtilities.formatSeconds(totalPlayTime)}"))
             updateTeam(board, "exp_reward", mm.deserialize("<color:#AAD34A>+$nextReward EXP"))
             updateTeam(board, "exp_reward_status", mm.deserialize("<color:#AAD34A>$currentPlayTimeRewardCount / $maxPlayTimeRewardCount"))

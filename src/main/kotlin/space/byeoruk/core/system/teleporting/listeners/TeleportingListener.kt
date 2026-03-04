@@ -19,6 +19,8 @@ import space.byeoruk.core.global.configs.MainConfigManager
 import space.byeoruk.core.system.teleporting.inventory.TeleportInventoryHolder
 import space.byeoruk.core.system.teleporting.managers.TeleportingPlayerDataManager
 import space.byeoruk.core.utility.PlayerUtilities
+import space.byeoruk.core.utility.PlayerUtilities.getTotalExp
+import space.byeoruk.core.utility.PlayerUtilities.subtractTotalExp
 
 class TeleportingListener(
     private val plugin: Main,
@@ -124,7 +126,7 @@ class TeleportingListener(
             if(!hasTeleportCost(player, expCost))
                 return@scheduleSyncDelayedTask
 
-            PlayerUtilities.subtractTotalExperience(player, expCost)
+            player.subtractTotalExp(expCost)
 
             val endRodParticleLocation = teleportLocation.clone().add(.5, 1.0, .5)
             val electricSparkParticleLocation = teleportLocation.clone().add(.5, 1.2, .5)
@@ -174,7 +176,7 @@ class TeleportingListener(
      */
     private fun hasTeleportCost(player: Player, expCost: Int): Boolean {
         val mm = MiniMessage.miniMessage()
-        if(PlayerUtilities.getTotalExperience(player) < expCost) {
+        if(player.getTotalExp() < expCost) {
             player.sendMessage(mm.deserialize("${configManager.messagePrefix} 경험치가 부족해요. (필요 경험치: $expCost EXP)"))
             return false
         }
