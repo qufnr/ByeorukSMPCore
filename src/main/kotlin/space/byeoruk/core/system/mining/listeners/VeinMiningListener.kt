@@ -7,8 +7,11 @@ import org.bukkit.event.block.BlockBreakEvent
 import org.bukkit.event.block.BlockPlaceEvent
 import space.byeoruk.core.system.mining.managers.BlockDataManager
 import space.byeoruk.core.system.mining.managers.VeinMiningManager
-import space.byeoruk.core.utility.BlockUtilities
+import space.byeoruk.core.utility.BlockUtilities.isLog
+import space.byeoruk.core.utility.BlockUtilities.isOre
 import space.byeoruk.core.utility.ItemUtilities
+import space.byeoruk.core.utility.ItemUtilities.isAxe
+import space.byeoruk.core.utility.ItemUtilities.isPickaxe
 
 class VeinMiningListener(private val blockDataManager: BlockDataManager, private val veinMiningManager: VeinMiningManager): Listener {
 
@@ -20,7 +23,7 @@ class VeinMiningListener(private val blockDataManager: BlockDataManager, private
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
     fun onBlockPlace(event: BlockPlaceEvent) {
         event.block.let {
-            if(BlockUtilities.isLog(it) || BlockUtilities.isOre(it))
+            if(it.isLog() || it.isOre())
                 blockDataManager.markAsPlaced(it)
         }
     }
@@ -50,11 +53,11 @@ class VeinMiningListener(private val blockDataManager: BlockDataManager, private
         val block = event.block
         val item = player.inventory.itemInMainHand
 
-        val isLog = BlockUtilities.isLog(block)
-        val isAxe = ItemUtilities.isAxe(item)
+        val isLog = block.isLog()
+        val isAxe = item.isAxe()
 
-        val isOre = BlockUtilities.isOre(block)
-        val isPickaxe = ItemUtilities.isPickaxe(item)
+        val isOre = block.isOre()
+        val isPickaxe = item.isPickaxe()
 
         if((isLog && isAxe) || (isOre && isPickaxe)) {
             if(blockDataManager.isPlacedByPlayer(block))

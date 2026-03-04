@@ -5,7 +5,6 @@ import org.bukkit.GameMode
 import org.bukkit.Material
 import org.bukkit.block.BlockFace
 import org.bukkit.block.Dispenser
-import org.bukkit.block.data.Ageable
 import org.bukkit.block.data.Directional
 import org.bukkit.event.EventHandler
 import org.bukkit.event.Listener
@@ -20,8 +19,8 @@ import space.byeoruk.core.Main
 import space.byeoruk.core.global.configs.MainConfigManager
 import space.byeoruk.core.system.harvest.managers.HarvestManager
 import space.byeoruk.core.utility.BlockUtilities
+import space.byeoruk.core.utility.BlockUtilities.isMaxAge
 import space.byeoruk.core.utility.NumberUtilities
-import kotlin.random.Random
 
 class HarvestListener(
     private val plugin: Main,
@@ -81,7 +80,7 @@ class HarvestListener(
         val player = event.player
 
         if(item.type == Material.BONE_MEAL && block.type in crops) {
-            if(BlockUtilities.isMaxAge(block) || harvestManager.isGrowBuffed(block.location)) {
+            if(block.isMaxAge() || harvestManager.isGrowBuffed(block.location)) {
                 event.isCancelled = true
                 return
             }
@@ -118,7 +117,7 @@ class HarvestListener(
         //  타겟 블록이 농작물인지 확인
         if(targetBlock.type in crops) {
             //  이미 다 자란 작물이거나 성장 효과가 진행 중이면 바닐라처럼 뼛가루 낭비 방지
-            if(BlockUtilities.isMaxAge(targetBlock) || harvestManager.isGrowBuffed(targetBlock.location)) {
+            if(targetBlock.isMaxAge() || harvestManager.isGrowBuffed(targetBlock.location)) {
                 event.isCancelled = true
                 return
             }

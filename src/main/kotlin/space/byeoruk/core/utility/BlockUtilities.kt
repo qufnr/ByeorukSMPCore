@@ -12,8 +12,8 @@ object BlockUtilities {
      * @param block 블록 데이터
      * @return 블록이 원목이면 true 아니면 false
      */
-    fun isLog(block: Block): Boolean =
-        Tag.LOGS.isTagged(block.type)
+    fun Block.isLog(): Boolean =
+        Tag.LOGS.isTagged(this.type)
 
     /**
      * 블록이 광석인지 유무
@@ -21,8 +21,8 @@ object BlockUtilities {
      * @param block 블록 데이터
      * @return 블록이 광석이면 true 아니면 false
      */
-    fun isOre(block: Block): Boolean =
-        block.type.name.endsWith("_ORE") || block.type == Material.ANCIENT_DEBRIS
+    fun Block.isOre(): Boolean =
+        this.type.name.endsWith("_ORE") || this.type == Material.ANCIENT_DEBRIS
 
     /**
      * 블록이 원목이거나 광석인지 유무
@@ -30,7 +30,7 @@ object BlockUtilities {
      * @param block 블록 데이터
      * @return 블록이 원목이거나 광석이면 true 아니면 false
      */
-    fun isOreOrLog(block: Block): Boolean = isLog(block) || isOre(block)
+    fun Block.isOreOrLog(): Boolean = this.isLog() || this.isOre()
 
     /**
      * 블록이 최대 나이인지 유무
@@ -38,13 +38,13 @@ object BlockUtilities {
      * @param block 블록 데이터
      * @return 블록이 최대 나이이면 true 아니면 false
      */
-    fun isMaxAge(block: Block): Boolean {
+    fun Block.isMaxAge(): Boolean {
         //  열매랑 붙어있는 꼬다리일 경우에만 Max Age로 판단
-        if(block.type == Material.PUMPKIN_STEM || block.type == Material.MELON_STEM)
+        if(this.type == Material.PUMPKIN_STEM || this.type == Material.MELON_STEM)
             return false
 
-        if(block.blockData is Ageable) {
-            val ageable = block.blockData as Ageable
+        if(this.blockData is Ageable) {
+            val ageable = this.blockData as Ageable
             return ageable.age >= ageable.maximumAge
         }
 

@@ -10,6 +10,8 @@ import org.bukkit.scheduler.BukkitRunnable
 import org.bukkit.util.Vector
 import space.byeoruk.core.global.configs.MainConfigManager
 import space.byeoruk.core.utility.ItemUtilities
+import space.byeoruk.core.utility.ItemUtilities.isAxe
+import space.byeoruk.core.utility.ItemUtilities.isPickaxe
 import java.util.LinkedList
 import java.util.UUID
 import kotlin.random.Random
@@ -66,8 +68,8 @@ class VeinMiningManager(
                         //  원목, 광석 파괴 시 도구 검사
                         val currentItem = player.inventory.itemInMainHand
                         if(currentItem.type.isAir ||
-                            (isLog && !ItemUtilities.isAxe(currentItem)) ||
-                            (isOre && !ItemUtilities.isPickaxe(currentItem))) {
+                            (isLog && !currentItem.isAxe()) ||
+                            (isOre && !currentItem.isPickaxe())) {
                             activePlayers.remove(player.uniqueId)
                             cancel()
                             return
