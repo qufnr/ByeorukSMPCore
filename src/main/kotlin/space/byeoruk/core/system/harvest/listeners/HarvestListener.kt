@@ -3,8 +3,10 @@ package space.byeoruk.core.system.harvest.listeners
 import org.bukkit.Bukkit
 import org.bukkit.GameMode
 import org.bukkit.Material
+import org.bukkit.Sound
 import org.bukkit.block.BlockFace
 import org.bukkit.block.Dispenser
+import org.bukkit.block.data.Ageable
 import org.bukkit.block.data.Directional
 import org.bukkit.event.EventHandler
 import org.bukkit.event.Listener
@@ -18,7 +20,6 @@ import org.bukkit.inventory.ItemStack
 import space.byeoruk.core.Main
 import space.byeoruk.core.global.configs.MainConfigManager
 import space.byeoruk.core.system.harvest.managers.HarvestManager
-import space.byeoruk.core.utility.BlockUtilities
 import space.byeoruk.core.utility.BlockUtilities.isMaxAge
 import space.byeoruk.core.utility.NumberUtilities
 
@@ -32,12 +33,13 @@ class HarvestListener(
         Material.CARROTS,
         Material.POTATOES,
         Material.BEETROOTS,
-        Material.GLOW_BERRIES,
         Material.PUMPKIN_STEM,
         Material.ATTACHED_PUMPKIN_STEM,
         Material.MELON_STEM,
         Material.ATTACHED_MELON_STEM,
-        Material.SWEET_BERRIES
+        Material.SWEET_BERRY_BUSH,
+        Material.CAVE_VINES,
+        Material.CAVE_VINES_PLANT,
     )
 
     /**
@@ -53,7 +55,7 @@ class HarvestListener(
         if(block.type in crops)
             event.isCancelled = true
 
-        if(newState == Material.PUMPKIN || newState == Material.MELON)
+        if(newState == Material.PUMPKIN || newState == Material.MELON || newState == Material.CAVE_VINES)
             event.isCancelled = true
 
 //        event.block.let {
@@ -78,7 +80,9 @@ class HarvestListener(
         val block = event.clickedBlock ?: return
         val item = event.item ?: return
         val player = event.player
+        val blockData = block.blockData
 
+        //  뼛가루를 들고 작물에 상호작용
         if(item.type == Material.BONE_MEAL && block.type in crops) {
             if(block.isMaxAge() || harvestManager.isGrowBuffed(block.location)) {
                 event.isCancelled = true
@@ -94,6 +98,23 @@ class HarvestListener(
 
             //  성장 효과 부여
             harvestManager.setGrowBuff(block.location, configManager.harvestConfig.growBuffDuration)
+
+            return
+        }
+
+        //  달콤한 열매 덤불 상호작용으로 열매 못따도록 처리
+        //  TODO :: WHY NOT WORKING?!!!
+        if(block.type == Material.SWEET_BERRY_BUSH && blockData is Ageable) {
+            if(blockData.age >= 2) {
+                event.isCancelled = true
+
+                //  바닐라 기준 드롭
+                val dropCount = if(blockData.age == 3) NumberUtilities.getRandomInt(2, 4) else NumberUtilities.getRandomInt(1, 3)
+                block.world.playSound(block.location, Sound.BLOCK_SWEET_BERRY_BUSH_BREAK, 1.0f, 1.0f)
+                block.type = Material.AIR
+                val sweetBerries = ItemStack(Material.SWEET_BERRIES, dropCount)
+                block.world.dropItemNaturally(block.location.clone().add(.5, .5, .5), sweetBerries)
+            }
         }
     }
 

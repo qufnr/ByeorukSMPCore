@@ -1,7 +1,6 @@
 package space.byeoruk.core.system.harvest.managers
 
 import net.kyori.adventure.text.minimessage.MiniMessage
-import org.bukkit.Color
 import org.bukkit.Location
 import org.bukkit.Material
 import org.bukkit.Particle
@@ -9,16 +8,18 @@ import org.bukkit.Sound
 import org.bukkit.block.BlockFace
 import org.bukkit.block.data.Ageable
 import org.bukkit.block.data.Directional
-import org.bukkit.entity.Display
-import org.bukkit.entity.EntityType
-import org.bukkit.entity.TextDisplay
+import org.bukkit.block.data.type.CaveVines
 import org.bukkit.scheduler.BukkitRunnable
 import space.byeoruk.core.Main
 import space.byeoruk.core.global.configs.MainConfigManager
 import space.byeoruk.core.utility.NumberUtilities
 import java.util.concurrent.ConcurrentHashMap
 
-data class GrowBuff(val location: Location, val endTime: Long, val display: TextDisplay)
+data class GrowBuff(
+    val location: Location,
+    val endTime: Long,
+//    val display: TextDisplay
+)
 
 class HarvestManager(private val configManager: MainConfigManager) {
     private val activeGrowBuffs = ConcurrentHashMap<Location, GrowBuff>()
@@ -34,25 +35,25 @@ class HarvestManager(private val configManager: MainConfigManager) {
         if(activeGrowBuffs.containsKey(location))
             return
 
-        val mm = MiniMessage.miniMessage()
+//        val mm = MiniMessage.miniMessage()
 
         val endTime = System.currentTimeMillis() + (duration * 1000L)
-        val displayLocation = location.clone().add(.5, 1.2, .5)
-        val display = location.world.spawnEntity(displayLocation, EntityType.TEXT_DISPLAY) as TextDisplay
-        display.billboard = Display.Billboard.CENTER
-        display.backgroundColor = Color.fromARGB(0, 0, 0, 0)
-        display.isShadowed = true
-        display.brightness = Display.Brightness(15, 15)
+//        val displayLocation = location.clone().add(.5, 1.2, .5)
+//        val display = location.world.spawnEntity(displayLocation, EntityType.TEXT_DISPLAY) as TextDisplay
+//        display.billboard = Display.Billboard.CENTER
+//        display.backgroundColor = Color.fromARGB(0, 0, 0, 0)
+//        display.isShadowed = true
+//        display.brightness = Display.Brightness(15, 15)
 //        display.transformation = Transformation(
 //            Vector3f(0f, 0f, 0f),   //  위치 이동
 //            AxisAngle4f(0f ,0f, 0f, 1f),    //  왼쪽 회전
 //            Vector3f(0f, 0f, 0f),   //  크기 스케일
 //            AxisAngle4f(0f ,0f, 0f, 1f) //  오른쪽 회전
 //        )
-        display.text(mm.deserialize("<color:#70E346>${NumberUtilities.formatSeconds(duration)}"))
+//        display.text(mm.deserialize("<color:#70E346>${NumberUtilities.formatSeconds(duration)}"))
 
         //  현재 위치 성장 효과 생성
-        activeGrowBuffs[location] = GrowBuff(location, endTime, display)
+        activeGrowBuffs[location] = GrowBuff(location, endTime)
     }
 
     /**
@@ -68,7 +69,9 @@ class HarvestManager(private val configManager: MainConfigManager) {
      *
      * @param location 농작물 위치
      */
-    fun removeGrowBuff(location: Location) = activeGrowBuffs.remove(location)?.display?.remove()
+    fun removeGrowBuff(location: Location) =
+//        activeGrowBuffs.remove(location)?.display?.remove()
+        activeGrowBuffs.remove(location)
 
     /**
      * 성장 시작 (.5초 마다 실행하는 태스크)
@@ -89,7 +92,7 @@ class HarvestManager(private val configManager: MainConfigManager) {
 
                     //  시간이 다 됐거나, 해당 블록이 농작물이 아니게 된 경우 파괴
                     if(now >= growBuff.endTime || location.block.type.isAir) {
-                        growBuff.display.remove()
+//                        growBuff.display.remove()
                         iterator.remove()
                         continue
                     }
@@ -98,13 +101,33 @@ class HarvestManager(private val configManager: MainConfigManager) {
                     location.world.spawnParticle(Particle.HAPPY_VILLAGER, location.clone().add(.5, .5, .5), 3, .3, .3, .3, .0)
 
                     //  남은 시간 업데이트
-                    val remainingDuration = ((growBuff.endTime - now) / 1000).toInt()
-                    growBuff.display.text(mm.deserialize("<color:#70E346>${NumberUtilities.formatSeconds(remainingDuration)}"))
+//                    val remainingDuration = ((growBuff.endTime - now) / 1000).toInt()
+//                    growBuff.display.text(mm.deserialize("<color:#70E346>${NumberUtilities.formatSeconds(remainingDuration)}"))
 
                     //  작물 자라는 속도 향상
                     val block = location.block
                     val blockData = block.blockData
-                    if(blockData is Ageable) {
+
+                    //  발광열매
+                    if(blockData is CaveVines) {
+                        if(!blockData.hasBerries()) {
+                            if(NumberUtilities.isInChance(configManager.harvestConfig.forceGrowChance)) {
+                                blockData.isBerries = true
+                                block.blockData = blockData
+
+                                location.world.playSound(location, Sound.BLOCK_CAVE_VINES_PLACE, 1.0f, 1.2f)
+                                location.world.spawnParticle(Particle.COMPOSTER, location.clone().add(.5, .5, .5), 10, .3, .3, .3, .1)
+
+                                //  열매 자라면 끝이니까 태스크 죽이기
+//                                growBuff.display.remove()
+                                iterator.remove()
+                                continue
+                            }
+                        }
+                    }
+
+                    //  일반 농작물
+                    else if(blockData is Ageable) {
                         //  호박, 수박 줄기
                         if(block.type == Material.PUMPKIN_STEM || block.type == Material.MELON_STEM) {
                             if(NumberUtilities.isInChance(configManager.harvestConfig.forceGrowChance)) {
@@ -132,7 +155,7 @@ class HarvestManager(private val configManager: MainConfigManager) {
 
                                     //  연결된 줄기일 경우 다 자란걸로 판단해서 효과 제거
                                     if(block.type == Material.ATTACHED_PUMPKIN_STEM || block.type == Material.ATTACHED_MELON_STEM) {
-                                        growBuff.display.remove()
+//                                        growBuff.display.remove()
                                         iterator.remove()
                                         continue
                                     }
@@ -153,7 +176,7 @@ class HarvestManager(private val configManager: MainConfigManager) {
 
                                 //  최대 성장이면 효과 제거
                                 if(blockData.age == blockData.maximumAge) {
-                                    growBuff.display.remove()
+//                                    growBuff.display.remove()
                                     iterator.remove()
                                     continue
                                 }
@@ -169,7 +192,7 @@ class HarvestManager(private val configManager: MainConfigManager) {
      * 모든 효과 초기화
      */
     fun clearAll() {
-        activeGrowBuffs.values.forEach { it.display.remove() }
+//        activeGrowBuffs.values.forEach { it.display.remove() }
         activeGrowBuffs.clear()
     }
 }
