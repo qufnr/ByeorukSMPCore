@@ -14,6 +14,7 @@ class HarvestConfigManager {
     var attachedPumpkinStemDropSeedCountRange: String = "1:3"
         private set
     var attachedMelonStemDropSeedCountRange: String = "1:3"
+        private set
 
     constructor(
         growBuffDuration: Int,
